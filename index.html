@@ -3,266 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>غرفة أخبار كنان - لبنان: الرصد والتحرير</title>
+    <title>غرفة الإخبارية اللبنانية | Lebanese Newsroom</title>
     <style>
         :root {
-            --bg-page: #f8fafc;
-            --bg-card: #ffffff;
-            --primary: #0f172a;
-            --accent-gold: #c28834;
-            --accent-blue: #0284c7;
-            --border: #e2e8f0;
-            --text-dark: #1e293b;
-            --text-muted: #64748b;
-            --beqaa-badge: #b91c1c;
+            --bg-main: #0a0e17;
+            --bg-card: #111827;
+            --bg-card-hover: #162032;
+            --red-primary: #e11d48;
+            --red-glow: rgba(225, 29, 72, 0.25);
+            --green-cedar: #16a34a;
+            --green-glow: rgba(22, 163, 74, 0.2);
+            --text-light: #f8fafc;
+            --text-gray: #94a3b8;
+            --border-dim: #1f293d;
+            --gold-accent: #f59e0b;
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        body { background: var(--bg-page); color: var(--text-dark); padding: 12px; }
-        .wrapper { max-width: 950px; margin: 0 auto; }
+        body { background: var(--bg-main); color: var(--text-light); padding: 12px; min-height: 100vh; }
+        .container { max-width: 900px; margin: 0 auto; }
+
+        /* الترويسة وهوية الإخبارية اللبنانية */
+        header { 
+            background: linear-gradient(180deg, #111827 0%, #0d131f 100%); 
+            border: 1px solid var(--border-dim); 
+            border-radius: 14px; 
+            padding: 16px 20px; 
+            margin-bottom: 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .brand-container { display: flex; align-items: center; gap: 14px; }
+        .logo-emblem { width: 50px; height: 50px; flex-shrink: 0; filter: drop-shadow(0 0 8px rgba(225, 29, 72, 0.4)); }
         
-        /* شريط الترويسة */
-        .top-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 16px; }
-        .logo-box { display: flex; align-items: center; gap: 10px; }
-        .logo-box .badge { background: var(--primary); color: #fff; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
-        .logo-box h1 { font-size: 17px; font-weight: 800; color: var(--primary); }
-        .logo-box span { font-size: 11px; color: var(--text-muted); display: block; }
-        .live-clock { text-align: left; }
-        .live-clock .time { font-size: 18px; font-weight: 700; color: var(--primary); }
-        .live-clock .sub { font-size: 11px; color: var(--text-muted); }
+        .brand-titles h1 { font-size: 20px; font-weight: 800; color: #22c55e; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
+        .brand-titles .en-brand { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; margin-top: 2px; }
+        .brand-titles .en-red { color: #f43f5e; }
+        .brand-titles .en-green { color: #22c55e; }
 
-        /* بانر موعد الجولة */
-        .schedule-banner { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
-        .schedule-title { font-size: 19px; font-weight: 800; color: var(--primary); }
-        .schedule-desc { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
-        .next-box { text-align: left; background: #fff8eb; border: 1px solid #fde68a; border-radius: 8px; padding: 6px 14px; }
-        .next-box .time { font-size: 17px; font-weight: 700; color: var(--accent-gold); }
-        .next-box .lbl { font-size: 11px; color: #92400e; }
+        .desk-info { text-align: left; }
+        .time-box { font-size: 18px; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+        .time-lbl { font-size: 11px; color: var(--text-gray); }
 
-        /* حقل البحث الفوري */
-        .search-row { display: flex; gap: 8px; margin-bottom: 16px; }
-        .search-row input { flex: 1; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; background: #fff; }
-        .search-row input:focus { border-color: var(--accent-gold); }
-        .btn-search { background: var(--accent-gold); color: #fff; border: none; padding: 0 24px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        /* شريط الجولة والمؤقت */
+        .status-strip {
+            background: #131c2e;
+            border-right: 4px solid var(--red-primary);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-title { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+        .status-sub { font-size: 11px; color: var(--text-gray); margin-top: 2px; }
+        .next-timer { text-align: left; background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 6px; border: 1px solid var(--border-dim); }
+        .next-timer-val { font-size: 15px; font-weight: 700; color: var(--gold-accent); }
 
-        /* تصنيفات المحتوى والأرشيف */
-        .tabs-header { display: flex; gap: 10px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
-        .tab-btn { padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; background: none; color: var(--text-muted); border-bottom: 3px solid transparent; }
-        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
-        .tab-btn .counter { background: #e2e8f0; font-size: 11px; padding: 2px 7px; border-radius: 12px; margin-right: 4px; }
+        /* حقل البحث التحريري */
+        .search-area { display: flex; gap: 8px; margin-bottom: 16px; }
+        .search-area input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-dim);
+            background: #111827;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .search-area input:focus { border-color: var(--green-cedar); box-shadow: 0 0 0 2px var(--green-glow); }
+        .btn-search {
+            background: linear-gradient(135deg, #e11d48, #be123c);
+            color: #fff;
+            border: none;
+            padding: 0 22px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px var(--red-glow);
+        }
 
-        /* بطاقة الخبر المحررة */
-        .news-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-        .card-meta-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .tag-draft { background: #fef3c7; color: #92400e; padding: 3px 9px; border-radius: 6px; font-size: 12px; font-weight: 600; }
-        .tag-beqaa { background: #fee2e2; color: var(--beqaa-badge); padding: 3px 9px; border-radius: 6px; font-size: 12px; font-weight: 700; }
-        .headline-text { font-size: 18px; font-weight: 800; color: #0f172a; line-height: 1.5; margin-bottom: 12px; }
+        /* تبويبات الفرز */
+        .tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--border-dim); padding-bottom: 10px; margin-bottom: 16px; }
+        .tab-btn {
+            background: #111827;
+            border: 1px solid var(--border-dim);
+            color: var(--text-gray);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .tab-btn.active { background: var(--green-cedar); color: #fff; border-color: var(--green-cedar); box-shadow: 0 0 12px var(--green-glow); }
+        .counter-badge { background: rgba(0,0,0,0.3); font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-right: 4px; }
+
+        /* بطاقة المادة الإخبارية المحررة */
+        .news-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dim);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+            transition: transform 0.15s, border-color 0.15s;
+        }
+        .news-card:hover { border-color: #334155; transform: translateY(-1px); }
         
-        /* أزرار النسخ السريعة */
-        .actions-row { display: flex; gap: 8px; margin-bottom: 16px; }
-        .btn-action { padding: 7px 14px; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; }
-        .btn-action.primary { background: var(--accent-gold); color: #fff; border-color: var(--accent-gold); }
-        .btn-action:active { transform: scale(0.98); }
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .badge-beqaa {
+            background: #e11d48;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 6px;
+            box-shadow: 0 0 10px var(--red-glow);
+            letter-spacing: 0.3px;
+        }
+        .badge-status { font-size: 11px; color: var(--gold-accent); background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); padding: 3px 8px; border-radius: 6px; }
 
-        /* أقسام الخبر التحريري */
-        .editorial-text { font-size: 14px; line-height: 1.7; color: #334155; margin-bottom: 14px; }
-        .sub-box { border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; }
-        .box-urgent { background: #fff1f2; border: 1px solid #fecdd3; }
-        .box-urgent .label { font-size: 12px; font-weight: 700; color: #be123c; margin-bottom: 4px; }
-        .box-social { background: #f8fafc; border: 1px solid var(--border); }
-        .box-social .label { font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px; }
-        .box-content { font-size: 13px; color: #1e293b; line-height: 1.5; }
+        .headline { font-size: 16px; font-weight: 700; color: #f1f5f9; line-height: 1.5; margin-bottom: 12px; }
         
-        .section-title { font-size: 13px; font-weight: 700; color: #475569; margin: 14px 0 6px 0; }
-        .followup-list { list-style: none; padding-right: 4px; font-size: 12px; color: #475569; }
-        .followup-list li { margin-bottom: 4px; position: relative; padding-right: 14px; }
-        .followup-list li::before { content: "•"; position: absolute; right: 0; color: var(--accent-gold); font-size: 16px; }
+        /* أدوات النسخ الفوري */
+        .copy-actions { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .btn-copy {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #cbd5e1;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-copy:hover { background: #334155; color: #fff; }
+        .btn-copy.urgent-copy { border-color: #9f1239; color: #fda4af; }
+        .btn-copy.urgent-copy:hover { background: #be123c; color: #fff; }
 
-        .source-bar { font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; }
-        .source-bar a { color: var(--accent-blue); text-decoration: none; font-weight: 600; }
+        .article-text { font-size: 13px; line-height: 1.7; color: #cbd5e1; margin-bottom: 12px; background: #0c1322; padding: 12px; border-radius: 8px; border-right: 3px solid var(--green-cedar); }
         
-        /* تذييل حالة المصادر */
-        .desk-footer { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
-        .desk-footer strong { color: var(--primary); }
+        .box-urgent {
+            background: rgba(225, 29, 72, 0.08);
+            border: 1px solid rgba(225, 29, 72, 0.25);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #fecdd3;
+        }
+        .box-urgent strong { color: #f43f5e; margin-left: 6px; }
+
+        .followup-box { background: #0c1322; border: 1px solid var(--border-dim); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+        .followup-box-title { font-size: 11px; font-weight: 700; color: var(--gold-accent); margin-bottom: 6px; }
+        .followup-list { list-style: none; font-size: 11px; color: var(--text-gray); }
+        .followup-list li { margin-bottom: 3px; position: relative; padding-right: 12px; }
+        .followup-list li::before { content: "▪"; position: absolute; right: 0; color: var(--red-primary); }
+
+        .source-footer { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-gray); border-top: 1px solid var(--border-dim); padding-top: 8px; }
+        .source-footer a { color: #38bdf8; text-decoration: none; font-weight: 600; }
+
+        #desk-status { text-align: center; padding: 30px; color: var(--text-gray); font-size: 13px; }
     </style>
 </head>
 <body>
 
-<div class="wrapper">
-    <div class="top-nav">
-        <div class="logo-box">
-            <div class="badge">ن</div>
-            <div>
-                <h1>غرفة أخبار كنان</h1>
-                <span>لبنان: الرصد والتحرير المباشر</span>
+<div class="container">
+    <header>
+        <div class="brand-container">
+            <!-- الشعار التلفزيوني المتقن بالـ SVG -->
+            <svg class="logo-emblem" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- الدائرة الحمراء الخارجية -->
+                <circle cx="100" cy="100" r="88" stroke="#e11d48" stroke-width="14" fill="#0d111a"/>
+                <!-- الفصام / النقطتان المعدنيتان الجانبيتان -->
+                <circle cx="36" cy="100" r="10" fill="#64748b" stroke="#e2e8f0" stroke-width="3"/>
+                <circle cx="164" cy="100" r="10" fill="#64748b" stroke="#e2e8f0" stroke-width="3"/>
+                <!-- الجناحان الأحمران -->
+                <path d="M72 135C62 105 72 65 92 48C76 72 74 112 88 148C82 144 76 140 72 135Z" fill="#e11d48"/>
+                <path d="M128 135C138 105 128 65 108 48C124 72 126 112 112 148C118 144 124 140 128 135Z" fill="#e11d48"/>
+                <!-- شفرة الأرزة الخضراء في المنتصف -->
+                <path d="M100 42C108 75 106 125 94 158C92 125 94 75 100 42Z" fill="#22c55e"/>
+            </svg>
+            <div class="brand-titles">
+                <h1>الإخبارية اللبنانية</h1>
+                <div class="en-brand"><span class="en-red">LEBANESE</span> <span class="en-green">NEWS</span> | غرفة الرصد والتحرير</div>
             </div>
         </div>
-        <div class="live-clock">
-            <div class="time" id="beirutClock">--:--:--</div>
-            <div class="sub">توقيت بيروت</div>
+        <div class="desk-info">
+            <div class="time-box" id="beirutTime">--:--:--</div>
+            <div class="time-lbl">توقيت بيروت</div>
         </div>
-    </div>
+    </header>
 
-    <div class="schedule-banner">
+    <div class="status-strip">
         <div>
-            <div class="schedule-title">نشرة الساعة التحريرية</div>
-            <div class="schedule-desc">البحث التحريري المجدول مفعل كل ساعة آلياً مع تركيز استثنائي على محافظة البقاع.</div>
+            <div class="status-title">النشرة المجدولة لغرفة التحرير</div>
+            <div class="status-sub">أولوية الرصد والفرز: بلدات وقرى محافظة البقاع وبعلبك والهرمل</div>
         </div>
-        <div class="next-box">
-            <div class="lbl">موعد الجولة التالية</div>
-            <div class="time" id="countdown">--:--</div>
+        <div class="next-timer">
+            <div class="status-sub" style="font-size: 10px;">الجولة التالية خلال</div>
+            <div class="next-timer-val" id="timerNext">--:--</div>
         </div>
     </div>
 
-    <div class="search-row">
-        <input type="text" id="manualQuery" placeholder="ابحث مباشرة عن أي عنوان أو بلدة في البقاع...">
-        <button class="btn-search" onclick="triggerManualSearch()">ابحث الآن</button>
+    <div class="search-area">
+        <input type="text" id="searchInput" placeholder="ابحث مباشرة عن أي حدث، أو بلدة في البقاع...">
+        <button class="btn-search" onclick="searchLive()">بحث فوري</button>
     </div>
 
-    <div class="tabs-header">
-        <button class="tab-btn active" id="tabEdited" onclick="switchFilter('edited')">نشرات محررة <span class="counter" id="countEdited">0</span></button>
-        <button class="tab-btn" id="tabRaw" onclick="switchFilter('raw')">إشارات الرصد <span class="counter" id="countRaw">0</span></button>
+    <div class="tabs">
+        <button class="tab-btn active" id="tabBeqaa" onclick="setTab('beqaa')">رصد البقاع <span class="counter-badge" id="cBeqaa">0</span></button>
+        <button class="tab-btn" id="tabAll" onclick="setTab('all')">كافة التغطيات اللبنانية <span class="counter-badge" id="cAll">0</span></button>
     </div>
 
-    <div id="articlesFeed">جارٍ استدعاء البيانات التحريرية...</div>
-
-    <div class="desk-footer">
-        <div><strong>آخر جولة تحريرية:</strong> <span id="lastRunTime">--</span></div>
-        <div id="deskSummary" style="margin-top: 4px;"></div>
+    <div id="newsFeed">
+        <div id="desk-status">جارٍ الاتصال بمحرك الرصد والتحرير...</div>
     </div>
 </div>
 
 <script>
-    let allArticles = [];
-    let currentFilter = 'edited';
-    let countdownSecs = 0;
+    let articles = [];
+    let currentTab = 'beqaa';
+    let timeLeft = 0;
 
-    function updateClock() {
-        const now = new Date();
-        document.getElementById('beirutClock').textContent = now.toLocaleTimeString('ar-LB', { hour12: false });
+    function runClock() {
+        const d = new Date();
+        document.getElementById('beirutTime').textContent = d.toLocaleTimeString('ar-LB', { hour12: false });
     }
-    setInterval(updateClock, 1000);
-    updateClock();
+    setInterval(runClock, 1000);
+    runClock();
 
-    function startTimer() {
+    function startCountdown() {
         setInterval(() => {
-            if (countdownSecs > 0) {
-                countdownSecs--;
-                const mins = String(Math.floor(countdownSecs / 60)).padStart(2, '0');
-                const secs = String(countdownSecs % 60).padStart(2, '0');
-                document.getElementById('countdown').textContent = `${mins}:${secs}`;
+            if (timeLeft > 0) {
+                timeLeft--;
+                const m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+                const s = String(timeLeft % 60).padStart(2, '0');
+                document.getElementById('timerNext').textContent = `${m}:${s}`;
             } else {
-                document.getElementById('countdown').textContent = "جارٍ التحديث...";
+                document.getElementById('timerNext').textContent = "جارٍ التحديث...";
             }
         }, 1000);
     }
 
-    async function loadDeskData() {
+    async function loadData() {
         try {
             const res = await fetch('/api/feed');
             const data = await res.json();
-            allArticles = data.articles || [];
-            countdownSecs = data.next_run_seconds || 3600;
-            document.getElementById('lastRunTime').textContent = data.last_run;
-            document.getElementById('deskSummary').textContent = data.desk_summary;
-            renderView();
-        } catch (e) {
-            document.getElementById('articlesFeed').innerHTML = '<p style="text-align:center; padding:20px;">تعذر الاتصال بخادم الرصد. تأكد من عمل السيرفر.</p>';
+            articles = data.articles || [];
+            timeLeft = data.next_run_seconds || 3600;
+            renderArticles();
+        } catch(e) {
+            document.getElementById('newsFeed').innerHTML = `
+                <div id="desk-status" style="color: #f87171;">
+                    تعذر الاتصال بالخادم. يرجى الانتظار دقيقة حتى يستيقظ السيرفر ثم أعد التحديث.
+                    <br><button onclick="loadData()" style="margin-top:10px; padding:6px 14px; background:#1e293b; color:#fff; border:1px solid #475569; border-radius:6px; cursor:pointer;">إعادة المحاولة</button>
+                </div>
+            `;
         }
     }
 
-    function switchFilter(type) {
-        currentFilter = type;
-        document.getElementById('tabEdited').classList.toggle('active', type === 'edited');
-        document.getElementById('tabRaw').classList.toggle('active', type === 'raw');
-        renderView();
+    function setTab(tab) {
+        currentTab = tab;
+        document.getElementById('tabBeqaa').classList.toggle('active', tab === 'beqaa');
+        document.getElementById('tabAll').classList.toggle('active', tab === 'all');
+        renderArticles();
     }
 
-    function renderView() {
-        const feed = document.getElementById('articlesFeed');
-        const filtered = allArticles.filter(a => currentFilter === 'edited' ? a.is_beqaa : !a.is_beqaa);
-        
-        document.getElementById('countEdited').textContent = allArticles.filter(a => a.is_beqaa).length;
-        document.getElementById('countRaw').textContent = allArticles.filter(a => !a.is_beqaa).length;
+    function renderArticles() {
+        const feed = document.getElementById('newsFeed');
+        const beqaaList = articles.filter(a => a.is_beqaa);
+        document.getElementById('cBeqaa').textContent = beqaaList.length;
+        document.getElementById('cAll').textContent = articles.length;
 
-        if (filtered.length === 0) {
-            feed.innerHTML = '<div class="news-card" style="text-align:center; color:#64748b;">لا توجد مواد ضمن هذا التصنيف حالياً.</div>';
+        const displayed = currentTab === 'beqaa' ? beqaaList : articles;
+
+        if (displayed.length === 0) {
+            feed.innerHTML = '<div id="desk-status">لا توجد مواد مسجلة ضمن هذا القسم في الوقت الحالي.</div>';
             return;
         }
 
-        feed.innerHTML = filtered.map(item => `
+        feed.innerHTML = displayed.map(a => `
             <div class="news-card">
-                <div class="card-meta-top">
-                    ${item.is_beqaa ? '<span class="tag-beqaa">متابعة البقاع المباشرة</span>' : ''}
-                    <span class="tag-draft">${item.status_label}</span>
+                <div class="card-top">
+                    <div>
+                        ${a.is_beqaa ? '<span class="badge-beqaa">رصد البقاع المباشر</span>' : ''}
+                    </div>
+                    <span class="badge-status">${a.status_label || 'مسودة محررة'}</span>
                 </div>
-                <div class="headline-text">${item.headline}</div>
                 
-                <div class="actions-row">
-                    <button class="btn-action primary" onclick="copyText('${escapeStr(item.editorial_body)}', this)">نسخ نص الخبر</button>
-                    <button class="btn-action" onclick="copyText('${escapeStr(item.social_text)}', this)">نسخ للشبكات</button>
-                    <button class="btn-action" onclick="copyText('${escapeStr(item.urgent_text)}', this)">نسخ عاجل</button>
+                <div class="headline">${a.headline}</div>
+
+                <div class="copy-actions">
+                    <button class="btn-copy" onclick="copySnippet(this, '${escapeText(a.editorial_body)}')">نسخ نص المادة</button>
+                    <button class="btn-copy urgent-copy" onclick="copySnippet(this, '${escapeText(a.urgent_text)}')">نسخ عاجل</button>
+                    <button class="btn-copy" onclick="copySnippet(this, '${escapeText(a.social_text)}')">نسخ للسوشيال</button>
                 </div>
 
-                <div class="editorial-text">${item.editorial_body}</div>
+                <div class="article-text">${a.editorial_body}</div>
 
-                <div class="sub-box box-urgent">
-                    <div class="label">صيغة عاجل</div>
-                    <div class="box-content">${item.urgent_text}</div>
+                <div class="box-urgent">
+                    <strong>شريط عاجل:</strong> ${a.urgent_text}
                 </div>
 
-                <div class="sub-box box-social">
-                    <div class="label">صيغة النشر للشبكات الاجتماعية (تلغرام / فيسبوك)</div>
-                    <div class="box-content" style="white-space: pre-line;">${item.social_text}</div>
+                <div class="followup-box">
+                    <div class="followup-box-title">إجراءات التحقق والمتابعة التحريرية:</div>
+                    <ul class="followup-list">
+                        ${(a.followups || []).map(f => `<li>${f}</li>`).join('')}
+                    </ul>
                 </div>
 
-                <div class="section-title">ما يحتاج متابعة وتدقيق:</div>
-                <ul class="followup-list">
-                    ${item.followups.map(f => `<li>${f}</li>`).join('')}
-                </ul>
-
-                <div class="source-bar">
-                    <span>المصدر: <strong>${item.source}</strong></span>
-                    <a href="${item.link}" target="_blank" rel="noopener">فتح المادة الأصلية ↗</a>
+                <div class="source-footer">
+                    <span>المصدر المرصود: <strong>${a.source}</strong></span>
+                    <a href="${a.link}" target="_blank" rel="noopener">فتح الرابط الأصلي ↗</a>
                 </div>
             </div>
         `).join('');
     }
 
-    async function triggerManualSearch() {
-        const q = document.getElementById('manualQuery').value.trim();
-        if (!q) return;
-        document.getElementById('articlesFeed').innerHTML = '<p style="text-align:center; padding:30px;">جارٍ البحث الفوري وصياغة الأخبار آلياً...</p>';
-        try {
-            const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
-            const data = await res.json();
-            allArticles = data.results || [];
-            currentFilter = 'edited';
-            document.getElementById('tabEdited').classList.add('active');
-            document.getElementById('tabRaw').classList.remove('active');
-            renderView();
-        } catch(e) {
-            alert('تعذر استكمال البحث');
-        }
-    }
-
-    function escapeStr(str) {
+    function escapeText(str) {
         return (str || '').replace(/'/g, "\\'").replace(/\n/g, "\\n");
     }
 
-    function copyText(text, btn) {
-        navigator.clipboard.writeText(text).then(() => {
-            const original = btn.textContent;
-            btn.textContent = "تم النسخ ✓";
-            setTimeout(() => btn.textContent = original, 1800);
-        });
+    function copySnippet(btn, text) {
+        navigator.clipboard.writeText(text);
+        const original = btn.textContent;
+        btn.textContent = "تم النسخ ✓";
+        btn.style.borderColor = "#22c55e";
+        setTimeout(() => {
+            btn.textContent = original;
+            btn.style.borderColor = "";
+        }, 1500);
     }
 
-    document.getElementById('manualQuery').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') triggerManualSearch();
+    async function searchLive() {
+        const query = document.getElementById('searchInput').value.trim();
+        if (!query) return;
+
+        document.getElementById('newsFeed').innerHTML = '<div id="desk-status">جارٍ البحث الفوري في مصادر الرصد وصياغة النتائج...</div>';
+        try {
+            const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            articles = data.results || [];
+            currentTab = 'all';
+            document.getElementById('tabAll').classList.add('active');
+            document.getElementById('tabBeqaa').classList.remove('active');
+            renderArticles();
+        } catch(e) {
+            alert('حدث خطأ أثناء إجراء البحث المباشر');
+        }
+    }
+
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') searchLive();
     });
 
-    startTimer();
-    loadDeskData();
+    startCountdown();
+    loadData();
 </script>
 
 </body>
