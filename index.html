@@ -1,102 +1,154 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>غرفة الأخبار اللبنانية</title>
-<style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f5f7;--fg:#141c2b;--card:#fff;--mut:#69707d;--gold:#b08a4e;--nav:#0f1b2d;--bd:#dfe2e8;--soft:#f6f2e9}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d121b;--fg:#e9ebf0;--card:#161d2a;--mut:#98a0ae;--bd:#283040;--soft:#221f19}}
-:root[data-theme="dark"]{--bg:#0d121b;--fg:#e9ebf0;--card:#161d2a;--mut:#98a0ae;--bd:#283040;--soft:#221f19}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.75 system-ui,"Segoe UI",Tahoma,sans-serif}
-.top{background:var(--nav);color:#fff;padding:14px;border-bottom:3px solid var(--gold);display:flex;justify-content:space-between;align-items:center;gap:8px}
-.top h1{font-size:18px;margin:0}.top .s{font-size:12px;color:#aab3c2}
-#clock{font:600 30px/1 ui-monospace,Menlo,monospace;letter-spacing:2px;direction:ltr;color:#f0d9a8}
-main{max-width:820px;margin:auto;padding:12px}
-.box{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
-.mut{color:var(--mut);font-size:13px}
-input,textarea,select{width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:8px;padding:9px;font:inherit;font-size:15px}
-textarea{min-height:80px;resize:vertical}
-.btn{background:var(--gold);color:#fff;border:0;border-radius:8px;padding:10px 14px;font:inherit;font-weight:700}
-.btn.g{background:transparent;color:var(--fg);border:1px solid var(--bd);font-weight:400}.btn:disabled{opacity:.5}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}.row>*{flex:0 0 auto}.row input[type=text],.grow{flex:1 1 140px;width:auto}
-nav{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px}
-nav button,.seg button{white-space:nowrap;border:1px solid var(--bd);background:var(--card);color:var(--fg);padding:8px 14px;border-radius:20px;font:inherit;font-size:14px}
-nav button.on,.seg button.on{background:var(--nav);color:#fff;border-color:var(--nav)}
-.seg{display:flex;gap:6px;margin:8px 0}
-.it{padding:10px 0;border-top:1px solid var(--bd);cursor:pointer}.it.on{border-inline-start:4px solid var(--gold);padding-inline-start:8px}
-.it b{display:block}.tag{font-size:12px;padding:2px 8px;border-radius:10px;background:var(--soft);color:var(--gold)}
-h2{font-size:20px;margin:6px 0}h3{font-size:16px;margin:16px 0 6px}
-.var{background:var(--bg);border-radius:10px;padding:10px;margin:8px 0}.var b{color:var(--gold)}
-.fu{background:var(--soft);border-inline-start:4px solid var(--gold);padding:8px 12px;border-radius:6px}
-a{color:var(--gold);word-break:break-all}
-</style></head><body>
-<div class="top"><div><h1>غرفة الأخبار اللبنانية</h1><div class="s" id="date"></div></div><div><div id="clock">--:--:--</div><div class="s" style="text-align:end">توقيت بيروت</div></div></div>
-<main>
-<div class="box"><div class="mut">موعد الجولة التالية</div><div><b id="next" style="font-size:22px">--</b> <span class="mut" id="cd"></span></div>
-<div class="row"><input type="text" id="q" placeholder="موضوع البحث (مثال: لبنان)"><button class="btn" id="go">ابحث الآن</button><button class="btn g" id="dr">صياغة نشرة</button></div>
-<div class="row"><label class="mut"><input type="checkbox" id="auto" style="width:auto"> صياغة نشرة تلقائية دورية</label><select id="iv" style="width:auto"><option value="15">كل 15 دقيقة</option><option value="30">كل 30 دقيقة</option><option value="60">كل ساعة</option></select></div>
-<div class="mut" id="st"></div>
-<details><summary class="mut">مواد يدوية للتبويب الحالي (اختياري)</summary><textarea id="raw" placeholder="ألصق رسائل تلغرام أو بيانات أو روابط ليدمجها المحرر مع نتائج البحث"></textarea></details></div>
-<nav id="tabs"></nav>
-<div class="box"><b>الأرشيف</b> <span class="mut" id="cnt"></span><div class="seg"><button id="sb">نشرات محرّرة</button><button id="ss">إشارات الرصد</button></div><div id="list"></div></div>
-<div id="det"></div>
-<div class="box"><b>حالة مصادر الرصد</b><div class="mut" id="src">لم تُجرَ جولة بعد في هذه الجلسة.</div></div>
-<details class="box"><summary><b>⚙️ الإعدادات (قابلة للتعديل)</b></summary><div id="cfg"></div>
-<div class="row"><button class="btn g" id="add">+ تبويب</button><button class="btn g" id="theme">ليلي/نهاري</button><button class="btn g" id="reset">إعادة ضبط</button></div>
-<p class="mut">أسلوب الصياغة</p><textarea id="style"></textarea></details>
-<p class="mut">المسودات للمراجعة البشرية قبل النشر. الإشارات غير المتحققة تُنسب لمصدرها ولا تُعدّ خبراً مؤكداً. البحث يتم عبر Claude ويُحتسب على حسابك.</p>
-</main>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مركز الأخبار المباشر</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
+        body { background: #0f172a; color: #f8fafc; padding: 16px; min-height: 100vh; }
+        .container { max-width: 850px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 20px; }
+        header h1 { font-size: 22px; font-weight: 700; color: #38bdf8; margin-bottom: 6px; }
+        header p { font-size: 13px; color: #94a3b8; }
+        
+        .search-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+        .search-bar input { flex: 1; padding: 14px 16px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 15px; outline: none; transition: 0.2s; }
+        .search-bar input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+        .search-bar button { padding: 0 22px; background: #2563eb; color: #fff; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .search-bar button:active { transform: scale(0.97); }
+
+        .tabs-wrapper { overflow-x: auto; white-space: nowrap; margin-bottom: 20px; padding-bottom: 6px; -webkit-overflow-scrolling: touch; }
+        .tabs { display: inline-flex; gap: 8px; }
+        .tab-btn { background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 9px 18px; border-radius: 25px; cursor: pointer; font-size: 14px; font-weight: 500; transition: 0.2s; }
+        .tab-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; font-weight: 700; }
+
+        #status-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 13px; color: #64748b; }
+        #loading { display: none; text-align: center; padding: 30px; font-weight: 600; color: #38bdf8; }
+
+        .news-grid { display: flex; flex-direction: column; gap: 12px; }
+        .news-card { background: #1e293b; border: 1px solid #334155; border-radius: 14px; padding: 16px; transition: transform 0.15s, border-color 0.15s; }
+        .news-card:hover { border-color: #475569; transform: translateY(-1px); }
+        .news-card a { font-size: 16px; font-weight: 600; color: #f1f5f9; text-decoration: none; line-height: 1.5; display: block; margin-bottom: 10px; }
+        .news-card a:hover { color: #38bdf8; }
+        
+        .news-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #94a3b8; }
+        .news-source { background: #0f172a; padding: 3px 10px; border-radius: 6px; color: #38bdf8; border: 1px solid #1e293b; }
+        .empty-msg { text-align: center; padding: 40px; color: #64748b; font-size: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>مركز الأخبار الفوري</h1>
+        <p>متابعة وتحديث حي لكافة المصادر الإخبارية والبحث المباشر</p>
+    </header>
+
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="ابحث مباشرة عن أي موضوع أو شخصية...">
+        <button onclick="performSearch()">ابحث الآن</button>
+    </div>
+
+    <div class="tabs-wrapper">
+        <div class="tabs" id="tabsList"></div>
+    </div>
+
+    <div id="status-bar">
+        <span id="activeSection">الأخبار</span>
+        <span id="articlesCount"></span>
+    </div>
+
+    <div id="loading">جارٍ جلب الأخبار...</div>
+    <div class="news-grid" id="newsGrid"></div>
+</div>
+
 <script>
-const SEED={pol:[{id:"s1",kind:"bulletin",time:"2026-09-29T10:00",d:{headline:"سلام يلتقي روبيو في واشنطن ويطلب تفعيل الإطار الثلاثي",body:"وصف رئيس الحكومة نواف سلام لقاءه وزير الخارجية الأميركي ماركو روبيو في واشنطن بأنه «تمام»، بحسب ما نقلته صحف لبنانية اليوم. وطلب سلام جدولاً زمنياً للانسحاب الإسرائيلي وتنفيذ الالتزامات، بينما عنونت صحف أخرى باتفاق لبناني أميركي على تنفيذ الإطار الثلاثي ودعم الجيش.",breaking:"سلام بعد لقائه روبيو في واشنطن: اللقاء «تمام»، ويطلب جدولاً زمنياً للانسحاب الإسرائيلي.",social:"سلام يلتقي روبيو ويدعو لتفعيل الإطار الثلاثي وجدول زمني للانسحاب، بحسب صحف اليوم.",site:"",level:"غير مؤكد",sources:[{name:"افتتاحيات الصحف · موقع القوات اللبنانية",url:"https://www.lebanese-forces.com/2026/09/29/newspapers-editorials-1912/",note:"مراجعة صحف: استقلال المصدر غير مثبت"},{name:"عناوين الصحف · بيروت 24",url:"https://www.beirut24.org/2026/09/29/",note:"مراجعة صحف"}],facts:[{text:"لقاء سلام وروبيو عُقد الاثنين في واشنطن",attribution:"صحف لبنانية عبر مراجعات الصحف"},{text:"سلام طلب جدولاً زمنياً للانسحاب الإسرائيلي",attribution:"افتتاحيات الصحف"}],follow:["بيان رسمي من رئاسة الحكومة أو الخارجية الأميركية","تفاصيل الإطار الثلاثي وموعد جولة التفاوض"]}},{id:"s2",kind:"signal",time:"2026-09-29T10:05",d:{title:"مصير إضراب السائقين يتقرر اليوم بعد زيادة بدل النقل",source:"مراجعة صحف · بيروت 24",url:"https://www.beirut24.org/2026/09/29/"}},{id:"s3",kind:"signal",time:"2026-09-29T10:06",d:{title:"وزراء ينوون زيارة جماعية إلى النبطية (من «أسرار الصحف»، غير مؤكد)",source:"أسرار الصحف · القوات اللبنانية",url:"https://www.lebanese-forces.com/2026/09/29/newspapers-secrets-1991/"}}]};
-const DEF={tabs:[{id:"pol",name:"سياسية",hint:"أخبار سياسية لبنانية: حكومة، مجلس نواب، أحزاب، دبلوماسية"},{id:"spo",name:"رياضية",hint:"رياضة لبنانية: كرة القدم والسلة والمنتخبات"},{id:"mis",name:"متفرقات",hint:"اقتصاد، اجتماع، طقس، حوادث سير، خدمات"},{id:"qad",name:"قضاء",hint:"أخبار الأقضية والبلدات بمسمياتها المحلية"},{id:"bhr",name:"بعلبك وهرمل",hint:"أخبار محافظة بعلبك-الهرمل وبلداتها"}],style:"فصحى مبسطة، محايدة، بلا تهويل. متن من فقرتين كحد أقصى. لا معلومة خارج المصادر. انسب كل ادعاء لمصدره.",interval:60,auto:false,q:"لبنان"};
-const $=id=>document.getElementById(id);
-function ld(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):JSON.parse(JSON.stringify(d))}catch(e){return JSON.parse(JSON.stringify(d))}}
-let cfg=ld("nr2_cfg",DEF),items=ld("nr2_items",SEED),cur=cfg.tabs[0].id,view="bulletin",sel=null,busy=false,nextAt=Date.now()+cfg.interval*60000,edit=false;
-function sv(){try{localStorage.setItem("nr2_cfg",JSON.stringify(cfg));localStorage.setItem("nr2_items",JSON.stringify(items))}catch(e){}}
-const tab=()=>cfg.tabs.find(t=>t.id===cur)||cfg.tabs[0];
-const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const tf=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Beirut",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false});
-const hm=t=>new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Beirut",hour:"2-digit",minute:"2-digit"}).format(new Date(t));
-const L=a=>(a&&a.length?a.map(x=>"- "+x).join("\n"):"- لا يوجد");
-function fullText(d){return d.headline+"\n\n"+d.body+"\n\nعاجل:\n"+d.breaking+"\n\nللشبكات الاجتماعية:\n"+d.social+(d.site?"\n\nللموقع:\n"+d.site:"")+"\n\nالمصادر والإسناد:\n"+(d.sources||[]).map((s,i)=>"["+(i+1)+"] "+s.name+(s.url?" — "+s.url:"")+(s.note?" ("+s.note+")":"")).join("\n")+"\n\nالمعلومات المستخدمة:\n"+(d.facts||[]).map(f=>"- "+f.text+" (منسوب إلى: "+f.attribution+")").join("\n")+"\n\nما يحتاج متابعة:\n"+L(d.follow)+"\n\nالحالة: "+d.level}
-async function cp(t,b){try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();document.execCommand("copy");a.remove()}const o=b.textContent;b.textContent="تم النسخ ✓";setTimeout(()=>b.textContent=o,1400)}
-function rTabs(){const n=$("tabs");n.innerHTML="";cfg.tabs.forEach(t=>{const b=document.createElement("button");b.textContent=t.name;b.className=t.id===cur?"on":"";b.onclick=()=>{cur=t.id;sel=null;edit=false;$("raw").value=t.raw||"";render()};n.appendChild(b)})}
-function rList(){const a=(items[cur]||[]).filter(i=>i.kind===view);$("cnt").textContent=(items[cur]||[]).length+" مادة";$("sb").className=view==="bulletin"?"on":"";$("ss").className=view==="signal"?"on":"";const l=$("list");l.innerHTML=a.length?"":'<div class="mut">لا مواد بعد.</div>';
-if(!sel||!a.find(i=>i.id===sel))sel=a[0]?a[0].id:null;
-a.forEach(i=>{const d=document.createElement("div");d.className="it"+(i.id===sel?" on":"");const t=i.kind==="bulletin"?i.d.headline:i.d.title;d.innerHTML='<span class="mut">'+hm(i.time)+'</span><b>'+esc(t)+'</b><span class="mut">'+(i.kind==="bulletin"?"مسودة تحريرية · "+(i.d.sources||[]).length+" مصدر":esc(i.d.source||"")+" · عنوان يحتاج متابعة")+'</span>';d.onclick=()=>{sel=i.id;edit=false;render()};l.appendChild(d)})}
-function rDet(){const D=$("det");D.innerHTML="";const it=(items[cur]||[]).find(i=>i.id===sel);if(!it)return;const c=document.createElement("div");c.className="box";
-if(it.kind==="signal"){c.innerHTML='<span class="tag">إشارة رصد · غير متحققة</span><h2>'+esc(it.d.title)+'</h2><div class="mut">المصدر: '+esc(it.d.source||"")+(it.d.published?" · "+esc(it.d.published):"")+'</div>'+(it.d.url?'<p><a href="'+esc(it.d.url)+'" target="_blank" rel="noopener">'+esc(it.d.url)+'</a></p>':"")+'<p class="mut">إشارة مستخرجة من عنوان المصدر ولم يُجرَ تحقق مستقل بعد.</p>';const b=document.createElement("button");b.className="btn";b.textContent="نسخ الإشارة مع المصدر";b.onclick=()=>cp(it.d.title+"\nالمصدر: "+(it.d.source||"")+(it.d.url?"\n"+it.d.url:"")+"\n(غير متحقق)",b);c.appendChild(b);D.appendChild(c);return}
-const d=it.d;
-if(edit){c.innerHTML='<b>تعديل المسودة</b>';[["headline","العنوان"],["body","المتن"],["breaking","عاجل"],["social","للشبكات"],["site","للموقع"]].forEach(([k,n])=>{const p=document.createElement("p");p.className="mut";p.textContent=n;const t=document.createElement("textarea");t.value=d[k]||"";t.oninput=()=>{d[k]=t.value};c.append(p,t)});const b=document.createElement("button");b.className="btn";b.textContent="حفظ";b.style.marginTop="8px";b.onclick=()=>{sv();edit=false;render()};c.appendChild(b);D.appendChild(c);return}
-c.innerHTML='<span class="tag">مسودة محرّرة · للمراجعة · '+esc(d.level)+'</span><h2>'+esc(d.headline)+'</h2><div class="mut">رُصد في المنصة: '+hm(it.time)+'</div><div class="row" id="ac"></div><p>'+esc(d.body).replace(/\n/g,"<br>")+'</p>'+
-[["عاجل",d.breaking],["للشبكات الاجتماعية",d.social],["للموقع",d.site]].filter(x=>x[1]).map(x=>'<div class="var"><b>'+x[0]+'</b><br>'+esc(x[1])+'</div>').join("")+
-'<h3>المصادر والإسناد</h3>'+(d.sources||[]).map((s,i)=>'<div>['+(i+1)+'] <b>'+esc(s.name)+'</b><br><span class="mut">'+esc(s.note||"")+'</span>'+(s.url?'<br><a href="'+esc(s.url)+'" target="_blank" rel="noopener">'+esc(s.url)+'</a>':"")+'</div>').join("")+'<p class="mut">عدد الروابط لا يثبت استقلال المصادر: قد تنقل عدة جهات عن المصدر نفسه.</p>'+
-'<h3>المعلومات المستخدمة</h3>'+(d.facts||[]).map(f=>'<div>'+esc(f.text)+'<br><span class="mut">منسوب إلى: '+esc(f.attribution)+'</span></div>').join("<hr>")+
-'<h3>ما يحتاج متابعة</h3><div class="fu"><ul style="margin:0;padding-inline-start:18px">'+(d.follow||[]).map(x=>"<li>"+esc(x)+"</li>").join("")+'</ul></div><h3>الصور والوسائط</h3><div class="mut">لا وسائط موثقة مرفقة. راجع الحقوق قبل الاستخدام.</div>';
-D.appendChild(c);const ac=c.querySelector("#ac");const b1=document.createElement("button");b1.className="btn";b1.textContent="نسخ الخبر وملحقاته";b1.onclick=()=>cp(fullText(d),b1);const b2=document.createElement("button");b2.className="btn g";b2.textContent="نسخ نص الخبر";b2.onclick=()=>cp(d.headline+"\n\n"+d.body,b2);const b3=document.createElement("button");b3.className="btn g";b3.textContent="تعديل";b3.onclick=()=>{edit=true;render()};const b4=document.createElement("button");b4.className="btn g";b4.textContent="حذف";b4.onclick=()=>{items[cur]=items[cur].filter(i=>i!==it);sel=null;sv();render()};ac.append(b1,b2,b3,b4)}
-function rCfg(){const c=$("cfg");c.innerHTML="";cfg.tabs.forEach((t,i)=>{const w=document.createElement("div");w.className="box";const n=document.createElement("input");n.value=t.name;n.oninput=()=>{t.name=n.value;sv();rTabs()};const h=document.createElement("textarea");h.style.minHeight="56px";h.value=t.hint;h.oninput=()=>{t.hint=h.value;sv()};const r=document.createElement("button");r.className="btn g";r.style.marginTop="6px";r.textContent="حذف التبويب";r.onclick=()=>{if(cfg.tabs.length<2)return;cfg.tabs.splice(i,1);cur=cfg.tabs[0].id;sv();render()};w.append(n,h,r);c.appendChild(w)});$("style").value=cfg.style;$("q").value=cfg.q;$("auto").checked=cfg.auto;$("iv").value=cfg.interval}
-function render(){rTabs();rList();rDet();rCfg()}
-$("sb").onclick=()=>{view="bulletin";sel=null;render()};$("ss").onclick=()=>{view="signal";sel=null;render()};
-$("style").oninput=e=>{cfg.style=e.target.value;sv()};$("q").oninput=e=>{cfg.q=e.target.value;sv()};$("raw").oninput=e=>{tab().raw=e.target.value;sv()};
-$("iv").onchange=e=>{cfg.interval=+e.target.value;nextAt=Date.now()+cfg.interval*60000;sv()};
-$("auto").onchange=e=>{cfg.auto=e.target.checked;nextAt=Date.now()+cfg.interval*60000;sv();if(cfg.auto)round()};
-$("go").onclick=doPull;$("dr").onclick=()=>round([tab()]);
-$("add").onclick=()=>{cfg.tabs.push({id:"t"+Date.now(),name:"تبويب جديد",hint:"وصف الموضوع"});sv();render()};
-$("theme").onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"light":"dark"};
-$("reset").onclick=()=>{if(confirm("إعادة ضبط كل شيء؟")){cfg=JSON.parse(JSON.stringify(DEF));items=JSON.parse(JSON.stringify(SEED));cur=cfg.tabs[0].id;sel=null;sv();render()}};
-async function one(t){const sample=await claude.use("sample");if(!sample)throw{code:"none"};
-const old=(items[t.id]||[]).filter(i=>i.kind==="bulletin").slice(0,5).map(i=>i.d.headline).join(" | ");
-const p="أنت محرر أخبار في غرفة أخبار لبنانية. التبويب: "+t.name+" ("+t.hint+"). الوقت في بيروت: "+tf.format(new Date())+". موضوع البحث: "+cfg.q+".\nإن توفرت لديك أداة بحث على الويب فاستخدمها للعثور على أحدث الأخبار اللبنانية المتعلقة بهذا التبويب خلال الساعات الماضية، واستفد من المواد اليدوية إن وُجدت. إن لم تتوفر أداة بحث ولا مواد فأعد status=no_search ولا تختلق شيئاً.\nالمواد اليدوية: "+(t.raw||"لا يوجد")+"\nنشرات سابقة يجب عدم تكرارها: "+(old||"لا يوجد")+"\nالأسلوب: "+cfg.style+"\nقواعد: انسب كل ادعاء لمصدره؛ النصوص المتطابقة من جهات متعددة ليست مصادر مستقلة؛ لا تضف معلومة خارج المصادر؛ لا تنسخ نصوصاً كاملة؛ ضع روابط حقيقية فقط.\nأعد JSON فقط: {status:'ok|no_search|empty', note, signals:[{title,source,url,published}] (حتى 6), bulletin: null أو {headline,body,breaking,social,site,level:'مؤكد|غير مؤكد',sources:[{name,url,note}],facts:[{text,attribution}],follow:[نصوص]}}";
-const j=await sample.json(p,{cache:false});const now=new Date().toISOString();const arr=items[t.id]=items[t.id]||[];let n=0;
-(j.signals||[]).forEach(s=>{if(s&&s.title&&!arr.some(i=>(i.d.title||i.d.headline)===s.title)){arr.unshift({id:"i"+Date.now()+Math.random().toString(36).slice(2,6),kind:"signal",time:now,d:s});n++}});
-if(j.bulletin&&j.bulletin.headline){arr.unshift({id:"b"+Date.now(),kind:"bulletin",time:now,d:j.bulletin});n++}
-items[t.id]=arr.slice(0,100);sv();return{t,n,status:j.status,note:j.note}}
-async function round(list){if(busy)return;list=list||cfg.tabs;busy=true;$("go").disabled=true;$("st").textContent="جارٍ الجولة…";const res=[];
-try{for(const t of list){try{res.push(await one(t))}catch(e){if(e&&(e.code==="not_granted"||e.code==="rate_limited"||e.code==="none"))throw e;res.push({t,n:0,status:"error"})}render()}
-$("st").textContent="اكتملت الجولة "+tf.format(new Date()).slice(0,5)}catch(e){$("st").textContent=e.code==="not_granted"?"لم تُمنح صلاحية البحث.":e.code==="rate_limited"?"تجاوز الحد، سيُعاد لاحقاً.":"ميزة البحث غير متاحة في هذا العرض."}
-$("src").innerHTML=res.map(r=>(r.status==="ok"?"✓ ":"! ")+esc(r.t.name)+" · "+r.n+" مادة جديدة"+(r.note?" — "+esc(r.note):"")).join("<br>")||$("src").innerHTML;
-busy=false;$("go").disabled=false;nextAt=Date.now()+cfg.interval*60000;render()}
-const df=new Intl.DateTimeFormat("ar-LB",{timeZone:"Asia/Beirut",dateStyle:"full"});
-setInterval(()=>{$("clock").textContent=tf.format(new Date());$("date").textContent=df.format(new Date());$("next").textContent=hm(nextAt);const s=Math.max(0,Math.round((nextAt-Date.now())/1000));$("cd").textContent=cfg.auto?"بعد "+Math.floor(s/60)+" د "+(s%60)+" ث":"(البحث الدوري متوقف)";if(cfg.auto&&!busy&&Date.now()>=nextAt)round()},1000);
-async function pull(){try{const r=await fetch("/api/feed",{cache:"no-store"});if(!r.ok)return -1;const j=await r.json();let n=0;cfg.tabs.forEach(t=>{const arr=items[t.id]=items[t.id]||[];(j[t.id]||[]).forEach(s=>{if(!arr.some(i=>i.kind==="signal"&&i.d.title===s.title)){arr.push({id:"f"+Math.random().toString(36).slice(2,9),kind:"signal",time:s.published_iso||new Date().toISOString(),d:{title:s.title,source:s.source+(s.echo?" · تكرر لدى "+s.echo+" مصدر (ليست مستقلة)":""),url:s.url,published:s.published}});n++}});arr.sort((a,b)=>String(b.time).localeCompare(String(a.time)));items[t.id]=arr.slice(0,100)});sv();render();return n}catch(e){return -1}}
-async function doPull(){$("st").textContent="جارٍ جلب الأخبار…";const n=await pull();$("st").textContent=n<0?"لا يوجد خادم رصد: شغّل server.py ليعمل الجلب الدوري.":"تم جلب "+n+" إشارة جديدة "+tf.format(new Date()).slice(0,5)}
-setInterval(pull,60000);pull();
-render();
-</script></body></html>
+    let feeds = {};
+
+    async function init() {
+        document.getElementById('loading').style.display = 'block';
+        try {
+            const res = await fetch('/api/feed');
+            feeds = await res.json();
+            renderTabs();
+            const categories = Object.keys(feeds);
+            if (categories.length > 0) {
+                switchCategory(categories[0]);
+            }
+        } catch (err) {
+            document.getElementById('newsGrid').innerHTML = '<div class="empty-msg">تعذر الاتصال بالخادم، يرجى تحديث الصفحة.</div>';
+        }
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    function renderTabs() {
+        const list = document.getElementById('tabsList');
+        list.innerHTML = '';
+        Object.keys(feeds).forEach((cat, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'tab-btn' + (index === 0 ? ' active' : '');
+            btn.textContent = cat;
+            btn.onclick = () => switchCategory(cat);
+            list.appendChild(btn);
+        });
+    }
+
+    function switchCategory(category) {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.textContent === category);
+        });
+        document.getElementById('activeSection').textContent = category;
+        const items = feeds[category] || [];
+        renderArticles(items);
+    }
+
+    async function performSearch() {
+        const query = document.getElementById('searchInput').value.trim();
+        if (!query) return;
+
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('activeSection').textContent = `نتائج البحث عن: "${query}"`;
+        document.getElementById('newsGrid').innerHTML = '';
+        document.getElementById('loading').style.display = 'block';
+
+        try {
+            const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            renderArticles(data.results || []);
+        } catch (e) {
+            document.getElementById('newsGrid').innerHTML = '<div class="empty-msg">حدث خطأ أثناء إجراء البحث المباشر.</div>';
+        }
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    function renderArticles(items) {
+        const grid = document.getElementById('newsGrid');
+        const countSpan = document.getElementById('articlesCount');
+        countSpan.textContent = items.length ? `${items.length} خبر` : '';
+
+        if (!items || items.length === 0) {
+            grid.innerHTML = '<div class="empty-msg">لا توجد أخبار متاحة حالياً.</div>';
+            return;
+        }
+
+        grid.innerHTML = items.map(item => `
+            <div class="news-card">
+                <a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.title}</a>
+                <div class="news-meta">
+                    <span class="news-source">${item.source || 'أخبار'}</span>
+                    <span>${item.pubDate ? item.pubDate.slice(0, 16) : ''}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') performSearch();
+    });
+
+    init();
+</script>
+
+</body>
+</html>
