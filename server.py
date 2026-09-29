@@ -1,85 +1,107 @@
-#!/usr/bin/env python3
-"""خادم غرفة الأخبار: يجلب RSS دورياً ويقدّم الواجهة و/api/feed.  التشغيل: python3 server.py"""
-import json, os, re, threading, time, urllib.parse, urllib.request
+import os
+import json
+import time
+import threading
+import urllib.request
+import urllib.parse
 import xml.etree.ElementTree as ET
-from email.utils import parsedate_to_datetime
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 PORT = int(os.environ.get("PORT", 8000))
-INTERVAL = int(os.environ.get("INTERVAL", 300))  # ثوانٍ بين كل جلب
+INTERVAL = 3600  # تحديث دوري كل ساعة
 
-def gn(q):  # بحث Google News RSS لآخر 24 ساعة
-    return "https://news.google.com/rss/search?q=" + urllib.parse.quote(q + " when:1d") + "&hl=ar&gl=LB&ceid=LB:ar"
-
-# مفاتيح التبويبات تطابق معرّفات الواجهة. أضف أي RSS مباشر بنفس الطريقة:
+# قائمة القنوات والمصادر الإخبارية
 FEEDS = {
-    "pol": [gn("سياسة لبنان")],
-    "spo": [gn("رياضة لبنان")],
-    "mis": [gn("لبنان")],
-    "qad": [gn("الأقضية لبنان بلدة")],
-    "bhr": [gn("بعلبك الهرمل")],
+    "عاجل لبنان": "https://news.google.com/rss?hl=ar&gl=LB&ceid=LB:ar",
+    "الوكالة الوطنية": f"https://news.google.com/rss/search?q={urllib.parse.quote('الوكالة الوطنية للإعلام')}&hl=ar&gl=LB&ceid=LB:ar",
+    "LBCI": f"https://news.google.com/rss/search?q={urllib.parse.quote('LBCI Lebanon')}&hl=ar&gl=LB&ceid=LB:ar",
+    "الميادين": f"https://news.google.com/rss/search?q={urllib.parse.quote('قناة الميادين')}&hl=ar&gl=LB&ceid=LB:ar",
+    "الجزيرة": f"https://news.google.com/rss/search?q={urllib.parse.quote('الجزيرة')}&hl=ar&gl=LB&ceid=LB:ar",
+    "العربية والحدث": f"https://news.google.com/rss/search?q={urllib.parse.quote('قناة العربية الحدث')}&hl=ar&gl=LB&ceid=LB:ar",
+    "تكنولوجيا": f"https://news.google.com/rss/search?q={urllib.parse.quote('تكنولوجيا وذكاء اصطناعي')}&hl=ar&gl=LB&ceid=LB:ar",
+    "اقتصاد": f"https://news.google.com/rss/search?q={urllib.parse.quote('اقتصاد أسواق مال')}&hl=ar&gl=LB&ceid=LB:ar",
+    "رياضة": f"https://news.google.com/rss/search?q={urllib.parse.quote('أخبار الرياضة كرة قدم')}&hl=ar&gl=LB&ceid=LB:ar"
 }
-# مثال: FEEDS["pol"].append("https://example.com/rss")
 
-DATA, STATUS, LOCK = {k: [] for k in FEEDS}, {}, threading.Lock()
+DATA = {}
+STATUS = {}
+LOCK = threading.Lock()
 
-def words(t): return set(re.findall(r"\w+", t))
-def jac(a, b):
-    a, b = words(a), words(b)
-    return len(a & b) / len(a | b) if a and b else 0
-
-def parse(xml_bytes):
-    out = []
-    for it in ET.fromstring(xml_bytes).iter("item"):
-        title = (it.findtext("title") or "").strip()
-        src = it.findtext("source") or ""
-        if src and title.endswith(" - " + src): title = title[: -len(src) - 3]
-        pub = it.findtext("pubDate") or ""
-        try: dt = parsedate_to_datetime(pub); iso = dt.astimezone().isoformat(); pub_ar = dt.astimezone().strftime("%Y-%m-%d %H:%M")
-        except Exception: iso, pub_ar = "", pub
-        out.append({"title": title, "source": src or "RSS", "url": (it.findtext("link") or "").strip(),
-                    "published": pub_ar, "published_iso": iso, "echo": 0})
-    return out
+def fetch_rss(url):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    }
+    req = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(req, timeout=15) as res:
+        xml_data = res.read()
+    root = ET.fromstring(xml_data)
+    items = []
+    for item in root.findall('.//item'):
+        title = item.find('title').text if item.find('title') is not None else ""
+        link = item.find('link').text if item.find('link') is not None else ""
+        pubDate = item.find('pubDate').text if item.find('pubDate') is not None else ""
+        source = item.find('source').text if item.find('source') is not None else "مصدر إخباري"
+        items.append({"title": title, "link": link, "pubDate": pubDate, "source": source})
+    return items
 
 def refresh():
-    for tab, urls in FEEDS.items():
-        for u in urls:
-            try:
-                req = urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0 newsroom"})
-                items = parse(urllib.request.urlopen(req, timeout=20).read())
-                with LOCK:
-                    cur = DATA.setdefault(tab, [])
-                    for n in items:
-                        if not n["title"]: continue
-                        twin = next((c for c in cur if jac(c["title"], n["title"]) >= 0.8), None)
-                        if twin:
-                            if twin["source"] != n["source"]: twin["echo"] += 1  # تشابه عالٍ: ليست مصدراً مستقلاً
-                        else: cur.append(n)
-                    cur.sort(key=lambda x: x["published_iso"], reverse=True)
-                    del cur[100:]
-                STATUS[tab + "|" + u[:60]] = "ok " + time.strftime("%H:%M:%S")
-            except Exception as e:
-                STATUS[tab + "|" + u[:60]] = "خطأ: " + str(e)[:80]
+    global DATA, STATUS
+    new_data = {}
+    new_status = {}
+    for cat, url in FEEDS.items():
+        try:
+            items = fetch_rss(url)
+            new_data[cat] = items
+            new_status[cat] = f"ok {time.strftime('%H:%M:%S')}"
+        except Exception as e:
+            new_status[cat] = f"error: {str(e)}"
+    with LOCK:
+        DATA = new_data
+        STATUS = new_status
 
 def loop():
     while True:
-        refresh(); time.sleep(INTERVAL)
+        refresh()
+        time.sleep(INTERVAL)
 
 class H(BaseHTTPRequestHandler):
     def send(self, body, ctype):
-        self.send_response(200); self.send_header("Content-Type", ctype + "; charset=utf-8")
-        self.send_header("Cache-Control", "no-store"); self.end_headers(); self.wfile.write(body)
+        self.send_response(200)
+        self.send_header("Content-Type", ctype + "; charset=utf-8")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_GET(self):
-        if self.path.startswith("/api/feed"):
-            with LOCK: self.send(json.dumps(DATA, ensure_ascii=False).encode(), "application/json")
-        elif self.path.startswith("/api/status"):
+        parsed = urllib.parse.urlparse(self.path)
+        if parsed.path.startswith("/api/feed"):
+            with LOCK:
+                self.send(json.dumps(DATA, ensure_ascii=False).encode(), "application/json")
+        elif parsed.path.startswith("/api/search"):
+            params = urllib.parse.parse_qs(parsed.query)
+            query = params.get('q', [''])[0]
+            if query:
+                encoded_q = urllib.parse.quote(query)
+                search_url = f"https://news.google.com/rss/search?q={encoded_q}&hl=ar&gl=LB&ceid=LB:ar"
+                try:
+                    results = fetch_rss(search_url)
+                    self.send(json.dumps({"results": results}, ensure_ascii=False).encode(), "application/json")
+                except Exception as e:
+                    self.send(json.dumps({"error": str(e)}, ensure_ascii=False).encode(), "application/json")
+            else:
+                self.send(b'{"results": []}', "application/json")
+        elif parsed.path.startswith("/api/status"):
             self.send(json.dumps(STATUS, ensure_ascii=False).encode(), "application/json")
         else:
             p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "index.html")
-            self.send(open(p, "rb").read(), "text/html")
-    def log_message(self, *a): pass
+            try:
+                self.send(open(p, "rb").read(), "text/html")
+            except:
+                self.send(b"Index file not found", "text/plain")
 
 if __name__ == "__main__":
-    threading.Thread(target=loop, daemon=True).start()
-    print("http://localhost:%d  (جلب كل %d ثانية)" % (PORT, INTERVAL))
-    ThreadingHTTPServer(("0.0.0.0", PORT), H).serve_forever()
+    t = threading.Thread(target=loop, daemon=True)
+    t.start()
+    server = HTTPServer(("0.0.0.0", PORT), H)
+    server.serve_forever()
